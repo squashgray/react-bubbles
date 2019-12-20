@@ -1,14 +1,66 @@
-import React from "react";
+import React, { Component } from "react";
+import { axiosWithAuth } from "../utils/axiosWithAuth";
 
-const Login = () => {
-  // make a post request to retrieve a token from the api
-  // when you have handled the token, navigate to the BubblePage route
-  return (
-    <>
-      <h1>Welcome to the Bubble App!</h1>
-      <p>Build a login page here</p>
-    </>
-  );
-};
+export default class Login extends Component {
+  state = {
+    credentials: {
+      username: "",
+      password: ""
+    },
+    isFecthing: false
+  };
 
-export default Login;
+  handleChange = e => {
+    this.setState({
+      credentials: {
+        ...this.state.credentials,
+        [e.target.name]: e.target.value
+      }
+    });
+  };
+
+  Login = e => {
+    e.preventDefault();
+    this.setState({
+      isFetching: true
+    });
+    axiosWithAuth()
+      .post("/login", this.state.credentials)
+      .then(res => {
+        console.log(res);
+        console.log(this.state.credentials);
+        localStorage.setItem("token", res.data.payload);
+        console.log(res.data.payload);
+        this.props.history.push("/bubblepage");
+      })
+      .catch(err => console.log(err));
+  };
+
+  render() {
+    return (
+      <div>
+        <div>
+          <h1>Welcome to Colors!</h1>
+          <p>Enter your Username and Password</p>
+          <form onSubmit={this.Login}>
+            <input
+              type="text"
+              name="username"
+              placeholder="Username"
+              value={this.state.credentials.username}
+              onChange={this.handleChange}
+            ></input>
+            <input
+              type="password"
+              name="password"
+              placeholder="Password"
+              value={this.state.credentials.password}
+              onChange={this.handleChange}
+            ></input>
+            <button type="submit">Login</button>
+          </form>
+        </div>
+      </div>
+    );
+  }
+}
